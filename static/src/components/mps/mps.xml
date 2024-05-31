@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <templates xml:space="preserve">
+        <t t-name="owl.MPS">
+        <div class="o_content"> 
+            <div class="o_mrp_mps">
+                <t t-if="widget.product_lines.length">
+                    <div class="text-nowrap mr0 ml0">
+                        <table class="table o_mps_product_table">
+                            <thead class="thead-light">
+                                <tr class="o_mps_period">
+                                    <th/>
+                                    <th/>
+                                    <th class="text-right pe-4" scope="col" t-foreach="widget.periods" t-as="i" t-key="i">
+                                        <div><t t-esc="i"/></div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <t t-foreach="widget.product_lines" t-as="i" t-key="i">
+                                <t t-call="MpsLineComponent" data="i"/>
+                            </t>
+                        </table>
+                    </div>
+                </t>
+                <t t-else="">
+                    <t t-call="helper"/>
+                </t>
+            </div>
+        </div>
+        </t>
+
+        <t t-name="OwlMps.Buttons" id="OwlMps.Buttons" t-set-slot="layout-buttons">
+                <button type="button" class="btn btn-primary o_mrp_mps_replenish">Replenish</button>
+                <button type="button" class="btn btn-secondary o_create_mps">Add a Product</button>
+        </t>
+
+    </templates>

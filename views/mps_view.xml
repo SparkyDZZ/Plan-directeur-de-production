@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id="todo_list_tree" model="ir.ui.view">
+            <field name="name">mps.tree</field>
+            <field name="model">mps</field>
+            <field name="arch" type="xml">
+                <tree string="To-Do List" delete="true">
+                    <field name="product_tmpl_id" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="mps_form" model="ir.ui.view">
+            <field name="name">mps.form</field>
+            <field name="model">mps</field>
+            <field name="arch" type="xml">
+                <form string="Ajouter un produit">
+                    <sheet>
+                        <div class="d-flex">
+                            <group>
+                                <field name="product_tmpl_id" />
+                                <field name="bom_id" domain="[('product_tmpl_id', '=', product_tmpl_id)]"/>
+                                <field name="warehouse_id" />
+                            </group>
+                            <group>
+                                <field name="forecast_target_qty" />
+                                <field name="min_to_replenish_qty" />
+                                <field name="max_to_replenish_qty" />
+                            </group>
+                        </div>
+                    </sheet>
+                    <footer>
+                        <button string="Save" type="object" name="save" class="btn-primary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        
+
+        <record id="mps_tree_action" model="ir.actions.act_window">
+            <field name="name">Add product</field>
+            <field name="res_model">mps</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+        <record id="action_mps_js" model="ir.actions.client">
+            <field name="name">Plans directeur de production</field>
+            <field name="tag">owl.action_mps_js</field>
+        </record>
+
+        <record id="product_action" model="ir.actions.server">
+            <field name="name">Product mps action</field>
+            <field name="model_id" ref="model_mps"/>
+            <field name="binding_model_id" ref="model_mps"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = env['mps'].search([]).unlink()
+            </field>
+        </record>
+
+    </data>
+    <menuitem id="menu_todo_root" name="MPS" web_icon="owl,static/description/icon.png">
+        <menuitem id="menu_todo_list" name="Plans directeur de production" action="mps_tree_action"/>
+        <menuitem id="menu_todo_owl" name="Plans directeur de production" sequence="10" action="action_mps_js"/>
+    </menuitem>
+</odoo>

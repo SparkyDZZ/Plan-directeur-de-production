@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template xml:space="preserve">
+     <t t-name="MpsLineComponent">
+         <tbody class="o_mps_content" t-att-data-id="i.id">
+             <tr class="bg-light">
+                 <th scope="col">
+                     <a href="#" class="o_mrp_mps_record_url">
+                         <t t-esc="i.product_tmpl_id[1]"/>
+                     </a>
+                     <span> - pp</span>
+                     <span> </span>
+                     <a href="#" role="button" title="Forecast Report" class="fa fa-fw fa-area-chart" t-on-click.prevent="_onClickForecastReport"/>
+                     <a href="#" class="fa fa-trash-o text-black o_unlink_mps" role="img" aria-label="Delete" title="Delete"></a>
+                 </th>
+                 <th/>
+                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                     <th class="text-right pe-4">
+                         <span class="" t-esc="widget.formatFloat(10)" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted quantity in stock at the beginning of the period."/>
+                     </th>
+                 </t>
+             </tr>
+             <tr name="demand_forecast_year_minus_2" class="">
+                 <th scope="row">
+                     <span>Actual Demand Y-2</span>
+                 </th>
+                 <th/>
+                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                     <th class="text-right pe-4">
+                         <span t-esc="widget.formatFloat(2)"/>
+                     </th>
+                 </t>
+             </tr>
+             <tr name="demand_forecast_year_minus_1" class="">
+                 <th scope="row">
+                     <span>Actual Demand Y-1</span>
+                 </th>
+                 <th/>
+                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                     <th class="text-right pe-4">
+                         <span t-esc="widget.formatFloat(2)"/>
+                     </th>
+                 </t>
+             </tr>
+             <tr t-ref="forecastRow" name="demand_forecast" class="">
+                 <th scope="row">
+                     - <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The confirmed demand, based on the confirmed sales orders.">Actual</span>
+                     <span class=""> / </span>
+                     <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted demand. This value has to be entered manually.">Forecasted Demand</span>
+                 </th>
+                 <th/>
+                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                     <th class="text-right pe-4">
+                         <a href="#" name="actual_demand" t-on-click="" data-action="action_open_actual_demand_details" t-att-data-date_index="j" class="">
+                             <t t-esc="widget.formatFloat(10)"/>
+                         </a>
+                         <span class=""> / </span>
+                         <input type="text" data-date_index="" class="text-right form-control o_mrp_mps_input_forcast_qty o_mps_inline" t-att-value="widget.formatFloat(10)" t-on-change.stop="" t-on-focus.prevent=""/>
+                     </th>
+                 </t>
+             </tr>
+             <tr name="indirect_demand" class="">
+                 <th scope="row" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted demand to fulfill the needs in components of the Manufacturing Orders.">
+                     - Indirect Demand Forecast
+                 </th>
+                 <th/>
+                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                     <th class="text-right pe-4">
+                         <t t-esc="widget.formatFloat(10)"/>
+                     </th>
+                 </t>
+             </tr>
+             <tr t-ref="replenishRow" name="to_replenish" class="">
+                 <th scope="row">
+                     + <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The quantity being replenished, based on the Requests for Quotation and the Manufacturing Orders.">Actual</span>
+                     <span class=""> / </span>
+                     <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The quantity to replenish through Purchase Orders or Manufacturing Orders.">Suggested Replenishment</span>
+                     <button type="button" title="Replenish" class="" t-on-click.stop="_onClickReplenish" t-on-mouseover.stop="_onMouseOverReplenish" t-on-mouseout.stop="_onMouseOutReplenish">
+                         Replenish
+                     </button>
+                 </th>
+                 <th class="text-right">
+                     <button type="button" class="" t-on-click.stop="">
+                         <t t-esc="i.min_to_replenish_qty"/> ≤…≤ <t t-esc="i.max_to_replenish_qty"/>
+                     </button>
+                 </th>
+                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                     <th class="o_forecast_stock text-right pe-4">
+                         <a href="#" name="actual_replenishment" t-on-click.prevent="_onClickOpenDetails" data-action="action_open_actual_replenishment_details" t-att-data-date_index="j" class="o_mrp_mps_open_details">
+                             <t t-esc="widget.formatFloat(10)"/>
+                         </a>
+                         <span class=""> / </span>
+                         <div class="input-group o_mps_inline">
+                             <button type="button" t-if="j.replenish_qty_updated" t-on-click.stop="" t-att-data-date_index="j" class="btn btn-link input-group-addon o_mrp_mps_automatic_mode fa fa-times o_no_padding"></button>
+                             <input type="text" t-att-data-date_index="j" class="form-control text-right o_mrp_mps_input_replenish_qty o_mrp_mps_to_replenish o_mrp_mps_forced_replenish" t-att-value="widget.formatFloat(10)" t-on-change.stop="" t-on-focus=""/>
+                         </div>
+                     </th>
+                 </t>
+             </tr>
+             <tr name="safety_stock" class="">
+                 <th scope="row">
+                     = <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">ATP</span>
+                     <span class=""> / </span>
+                     <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted quantity in stock at the end of the period.">Forecasted Stock</span>
+                 </th>
+                 <th class="text-right">
+                     <button type="button" class="" t-on-click.stop="">
+                         <span class="fa fa-bullseye text-muted fa-fw" role="img" aria-label="Forecasted" title="Forecasted"/>
+                         <t t-esc="i.forecast_target_qty or 0.0"/>
+                     </button>
+                 </th>
+                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                     <th class="text-right pe-4">
+                         <span class="" t-esc="widget.formatFloat(100)"/>
+                         <span class=""> / </span>
+                         <span class="" t-esc="widget.formatFloat(10)"/>
+                     </th>
+                 </t>
+             </tr>
+         </tbody>
+     </t>
+ </template>

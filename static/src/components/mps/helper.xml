@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template xml:space="preserve">
+    <t t-name="helper">
+            <div class="o_view_nocontent">
+               <div class="o_nocontent_help">
+                   <p class="o_view_nocontent_smiling_face">
+                       No product yet. Add one to start scheduling.
+                   </p><p>
+                       The master schedule translates your sales and demand forecasts into a production and purchase planning for each component.
+                       It ensures everything gets scheduled on time, based on constraints such as: safety stock, production capacity, lead times.
+                       It's the perfect tool to support your S&amp;OP meetings.
+                   </p>
+               </div>
+           </div>
+    </t>
+</template>

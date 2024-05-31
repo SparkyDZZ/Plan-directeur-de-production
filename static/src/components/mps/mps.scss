@@ -1,0 +1,135 @@
+.o_mps_product_table {
+    a {
+      color: #017e84 !important;
+    }
+  
+    button {
+      background: none;
+      border: 0;
+      font-weight: bold;
+      color: #017e84 !important;
+    }
+  }
+  
+  .layout-buttons {
+    margin-left: 20px !important;
+    width: 50% !important;
+  
+    button {
+      border: 0;
+      box-shadow: none !important;
+      outline: none;
+      padding: 15px 20px;
+      font-size: larger;
+      font-weight: bold;
+    }
+    button:hover,
+    button:active,
+    button:focus {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        background-color: transparent !important;
+    }
+  }
+  
+.o_content {
+    overflow-y: hidden;
+    height: 100%;
+    bottom: 0;
+  }
+
+  .o_mrp_mps {
+    overflow-x: auto;
+    overflow-y: auto;
+    height: 85%;
+    background-color: white;
+}
+
+.o_mrp_mps button.o_mrp_mps_procurement {
+    background-color: #E0E2E6;
+    border: none;
+}
+
+.o_mrp_mps button.o_no_padding {
+    padding: 0 0 0 0;
+}
+
+.o_mrp_mps input {
+    border-style: groove;
+    height: 100%;
+    border-radius: 0;
+    padding-top: 0;
+}
+
+.o_mrp_mps table thead th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0px;
+    left: 0px;
+    bottom: auto;
+    right: auto;
+    z-index: 10;
+    border-top: none;
+}
+
+.o_mrp_mps table thead th:first-child {
+    z-index: 11;
+}
+
+.o_mrp_mps table tbody th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: auto;
+    left: 0px;
+    bottom: auto;
+    right: auto;
+}
+
+.o_mrp_mps table tbody th:first-child {
+    z-index: 1;
+    background-color: #E0E2E6;
+}
+
+.o_mrp_mps table th {
+    vertical-align: middle;
+    min-width: 110px;
+}
+
+.o_mrp_mps table .o_mps_inline {
+    display: -webkit-inline-box;
+    display: -webkit-inline-flex;
+    display: inline-flex;
+    max-width: 38%;
+}
+
+.o_mrp_mps tr {
+    line-height: 1em;
+    min-height: 1em;
+    height: 1em;
+}
+
+.o_mrp_mps .btn, .o_mrp_mps .o_account_reports_page .oe_link_reports, .o_account_reports_page .o_mrp_mps .oe_link_reports, .o_mrp_mps .o_radio_hide_bullet label, .o_radio_hide_bullet .o_mrp_mps label {
+    line-height: 1em;
+}
+
+.o_mrp_mps .form-control {
+    padding: 0em 0em;
+    color: #000;
+}
+
+.o_mrp_mps .o_input {
+    line-height: 1em;
+}
+
+.o_mrp_mps .o_mrp_mps_hover {
+    background-color: #d6d8d9;
+}
+
+.o_mrp_mps .o_mrp_mps_hover.alert-success {
+    background-color: #c1e2b3;
+}
+
+.o_mrp_mps .o_mrp_mps_hover.alert-warning {
+    background-color: #f7ecb5;
+}

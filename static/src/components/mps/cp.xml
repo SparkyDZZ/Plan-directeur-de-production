@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template id="OwlMps.Buttons" xml:space="preserve">
+    <div class="layout-buttons" style="margin: 20px 0;">
+        <button type="button" class="btn btn-primary o_mrp_mps_replenish">Replenish</button>
+        <button type="button" class="btn btn-secondary o_create_mps">Add a Product</button>
+    </div>
+</template>
