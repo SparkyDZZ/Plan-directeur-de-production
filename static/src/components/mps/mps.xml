@@ -11,7 +11,7 @@
                                     <th/>
                                     <th/>
                                     <th class="text-right pe-4" scope="col" t-foreach="widget.periods" t-as="i" t-key="i">
-                                        <div><t t-esc="i"/></div>
+                                        <div><t t-esc="i.period_str"/></div>
                                     </th>
                                 </tr>
                             </thead>

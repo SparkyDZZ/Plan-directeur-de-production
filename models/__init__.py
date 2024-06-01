@@ -1,3 +1,3 @@
 from . import mps
 from . import forecast
-from . import period
+from . import res_config_settings

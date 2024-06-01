@@ -43,8 +43,8 @@ odoo.define('owl.mps', function (require) {
             this.bom_lines = []; 
             this.mps = [];
             this.state = {};
-            this.generatePeriods();
             this._renderButtons();
+            this.testGeneratePeriods();
 
             this.mutex = new concurrency.Mutex();
         },
@@ -75,24 +75,24 @@ odoo.define('owl.mps', function (require) {
                 return res;
         },
 
-        generatePeriods: function () {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const currentDate = new Date();
-            let currentMonthIndex = currentDate.getMonth();
-            let currentYear = currentDate.getFullYear();
-            const periods = [];
+        // generatePeriods: function () {
+        //     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        //     const currentDate = new Date();
+        //     let currentMonthIndex = currentDate.getMonth();
+        //     let currentYear = currentDate.getFullYear();
+        //     const periods = [];
 
-            for (let i = 0; i < 12; i++) {
-                periods.push(`${months[currentMonthIndex]} ${currentYear}`);
-                currentMonthIndex++;
-                if (currentMonthIndex === 12) {
-                    currentMonthIndex = 0;
-                    currentYear++;
-                }
-            }
+        //     for (let i = 0; i < 12; i++) {
+        //         periods.push(`${months[currentMonthIndex]} ${currentYear}`);
+        //         currentMonthIndex++;
+        //         if (currentMonthIndex === 12) {
+        //             currentMonthIndex = 0;
+        //             currentYear++;
+        //         }
+        //     }
 
-            this.periods = periods;
-        },
+        //     this.periods = periods;
+        // },
 
         _onClickCreate: function (ev) {
             this.mutex.exec(() => {
@@ -136,6 +136,18 @@ odoo.define('owl.mps', function (require) {
             });
 
         }, 
+
+        testGeneratePeriods: async function() {
+            return this._rpc({
+                model: 'mps',
+                method: 'generate_periods',
+                args: [[]],
+            }).then((periods) => {
+                this.periods = periods;
+                const periodStrArray = periods.map(period => period.period_str);
+                console.log(periodStrArray);
+            });
+        },
 
         _onClickUnlink: function(ev) {
             ev.preventDefault();

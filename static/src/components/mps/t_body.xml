@@ -2,6 +2,7 @@
 <template xml:space="preserve">
      <t t-name="MpsLineComponent">
          <tbody class="o_mps_content" t-att-data-id="i.id">
+
              <tr class="bg-light">
                  <th scope="col">
                      <a href="#" class="o_mrp_mps_record_url">
@@ -19,6 +20,9 @@
                      </th>
                  </t>
              </tr>
+
+            <!-- Actual Demand Y-2 -->
+
              <tr name="demand_forecast_year_minus_2" class="">
                  <th scope="row">
                      <span>Actual Demand Y-2</span>
@@ -30,6 +34,9 @@
                      </th>
                  </t>
              </tr>
+
+             <!-- Actual Demand Y-1 -->
+
              <tr name="demand_forecast_year_minus_1" class="">
                  <th scope="row">
                      <span>Actual Demand Y-1</span>
@@ -41,6 +48,9 @@
                      </th>
                  </t>
              </tr>
+
+             <!-- forecastRow -->
+
              <tr t-ref="forecastRow" name="demand_forecast" class="">
                  <th scope="row">
                      - <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The confirmed demand, based on the confirmed sales orders.">Actual</span>
@@ -58,7 +68,10 @@
                      </th>
                  </t>
              </tr>
-             <tr name="indirect_demand" class="">
+
+             <!-- Indirect Demand Forecast -->
+
+             <!-- <tr name="indirect_demand" class="">
                  <th scope="row" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted demand to fulfill the needs in components of the Manufacturing Orders.">
                      - Indirect Demand Forecast
                  </th>
@@ -68,7 +81,10 @@
                          <t t-esc="widget.formatFloat(10)"/>
                      </th>
                  </t>
-             </tr>
+             </tr> -->
+
+             <!-- replenishRow" -->
+
              <tr t-ref="replenishRow" name="to_replenish" class="">
                  <th scope="row">
                      + <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The quantity being replenished, based on the Requests for Quotation and the Manufacturing Orders.">Actual</span>
@@ -96,6 +112,9 @@
                      </th>
                  </t>
              </tr>
+
+             <!-- safety_stock -->
+
              <tr name="safety_stock" class="">
                  <th scope="row">
                      = <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">ATP</span>
