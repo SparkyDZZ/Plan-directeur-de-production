@@ -13,9 +13,10 @@ class MPS(models.Model):
     max_to_replenish_qty = fields.Float(string="Maximum à réapprovisionner", default=1000)
     min_to_replenish_qty = fields.Float(string="Minimum à réapprovisionner")
     product_id = fields.Many2one('product.product', string="Produit")
-    product_tmpl_id = fields.Many2one('product.template', string="Modèle de produit")
+    product_tmpl_id = fields.Many2one('product.template', string="Modèle de produit", required=True)
     product_uom_id = fields.Many2one('uom.uom', string="Unité de mesure du produit")
     warehouse_id = fields.Many2one('stock.warehouse', string="Entrepôt")
+    has_indirect_demand = fields.Boolean(string="Has indirect demand", default=0)
 
     @api.constrains('product_tmpl_id')
     def _check_unique_product_tmpl_id(self):
@@ -27,11 +28,24 @@ class MPS(models.Model):
                 ])
                 if existing_record:
                     raise ValidationError("Ce produit existe déja!")
+
     @api.depends('product_id')
     def _compute_display_name(self):
         for record in self:
             if record.product_id:
                 record.display_name = f"{record.product_id.display_name}"
+
+
+    def create_forecasted_qty(self):
+        for mps_record in self:
+            periods = mps_record.generate_periods()
+            for period in periods:
+                vals = {
+                    'mps_id': mps_record.id,
+                    'date_start': period['period_start'],
+                    'date_end': period['period_end'],
+                }
+                t = self.env['mps.forecasted.qty'].create(vals)
 
     @api.model
     def create(self, vals):
@@ -62,8 +76,10 @@ class MPS(models.Model):
                     'warehouse_id' : vals.get('warehouse_id'),
                     'max_to_replenish_qty' : 1000,
                     'min_to_replenish_qty' : 0,
+                    'has_indirect_demand' : 1,
                 }
                 self.env['mps'].create(mps_line_vals)
+        mps_record.create_forecasted_qty()
 
         return mps_record
 

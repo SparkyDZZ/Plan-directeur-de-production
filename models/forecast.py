@@ -10,7 +10,7 @@ class ForecastedQty(models.Model):
     date_end = fields.Date(string='Date de fin')
     starting_inventory_qty = fields.Float(string="Starting Inventory Quantity", compute='_compute_starting_inventory_qty')
 
-    mps_id = fields.Many2one('mps', string="Master Production Schedule")
+    mps_id = fields.Many2one('mps', string="Master Production Schedule", ondelete='cascade')
 
     @api.depends('mps_id', 'date_start', 'date_end')
     def _compute_starting_inventory_qty(self):
@@ -24,7 +24,7 @@ class ForecastedQty(models.Model):
 
     def _get_sales_orders(self, date_start, date_end):
         return self.env['sale.order.line'].search([
-            ('product_id', '=', self.product_id.id),
+            ('product_id', '=', self.mps_id.product_id.id),
             ('order_id.state', 'in', ['sale', 'done']),
             ('order_id.date_order', '>=', f'{date_start}'),
             ('order_id.date_order', '<=', f'{date_end}')
