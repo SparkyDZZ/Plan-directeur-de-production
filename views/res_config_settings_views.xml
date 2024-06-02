@@ -19,7 +19,7 @@
                                             </div>
                                             <div class="content-group">
                                                 <div class="mt16" >
-                                                    <field name="time_range" class="oe_inline"/>
+                                                    <field name="time_range" widget="radio" class="oe_inline"/>
                                                 </div>
                                             </div>
                                         </div>

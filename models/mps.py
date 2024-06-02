@@ -7,9 +7,8 @@ class MPS(models.Model):
     _description = 'Master Production Schedule'
 
     bom_id = fields.Many2one('mrp.bom', string="Nomenclature")
-    display_name = fields.Char(string="Nom d'affichage", readonly=True)
     forecast_ids = fields.One2many('mps.forecasted.qty', 'mps_id', string="Quantité prévue à la date")
-    forecast_target_qty = fields.Float(string="Stock de sécurité")
+    forecast_target_qty = fields.Float(string="Stock de sécurité", default="0")
     max_to_replenish_qty = fields.Float(string="Maximum à réapprovisionner", default=1000)
     min_to_replenish_qty = fields.Float(string="Minimum à réapprovisionner")
     product_id = fields.Many2one('product.product', string="Produit")
@@ -27,6 +26,40 @@ class MPS(models.Model):
                 ])
                 if existing_record:
                     raise ValidationError("Ce produit existe déja!")
+
+    @api.model
+    def create(self, vals):
+        bom_id = vals.get('bom_id')
+        product_tmpl_id = vals.get('product_tmpl_id')
+        product_id = vals.get('product_id')
+        product_uom_id = vals.get('product_uom_id')
+
+        if product_tmpl_id and (not product_id) :
+            product_tmpl = self.env['product.template'].browse(product_tmpl_id)
+            product_id = product_tmpl.product_variant_id.id
+            product_uom_id = product_tmpl.uom_id.id
+
+        # Create the MPS record
+        mps_record = super(MPS, self).create({
+            **vals,
+            'product_id': product_id,
+            'product_uom_id': product_uom_id,
+        })
+
+        if bom_id:
+            bom = self.env['mrp.bom'].browse(bom_id)
+            for line in bom.bom_line_ids:
+                mps_line_vals = {
+                    'product_id': line.product_id.id,
+                    'product_tmpl_id' : line.product_id.product_tmpl_id.id,
+                    'product_uom_id': line.product_uom_id.id,
+                    'warehouse_id' : vals.get('warehouse_id'),
+                    'max_to_replenish_qty' : 1000,
+                    'min_to_replenish_qty' : 0,
+                }
+                self.env['mps'].create(mps_line_vals)
+
+        return mps_record
 
     @api.model
     def save(self, vals):

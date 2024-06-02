@@ -8,7 +8,7 @@
                      <a href="#" class="o_mrp_mps_record_url">
                          <t t-esc="i.product_tmpl_id[1]"/>
                      </a>
-                     <span> - pp</span>
+                     <span> - <t t-esc="i.warehouse_id.name"/></span>
                      <span> </span>
                      <a href="#" role="button" title="Forecast Report" class="fa fa-fw fa-area-chart" t-on-click.prevent="_onClickForecastReport"/>
                      <a href="#" class="fa fa-trash-o text-black o_unlink_mps" role="img" aria-label="Delete" title="Delete"></a>

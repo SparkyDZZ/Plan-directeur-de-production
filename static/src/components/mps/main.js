@@ -44,7 +44,7 @@ odoo.define('owl.mps', function (require) {
             this.mps = [];
             this.state = {};
             this._renderButtons();
-            this.testGeneratePeriods();
+            this.GeneratePeriods();
 
             this.mutex = new concurrency.Mutex();
         },
@@ -137,7 +137,7 @@ odoo.define('owl.mps', function (require) {
 
         }, 
 
-        testGeneratePeriods: async function() {
+        GeneratePeriods: async function() {
             return this._rpc({
                 model: 'mps',
                 method: 'generate_periods',
