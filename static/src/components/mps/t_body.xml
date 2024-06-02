@@ -44,7 +44,7 @@
                  <th/>
                  <t t-foreach="i.forecast_ids" t-as="j" t-key="j">
                      <th class="text-right pe-4">
-                         <span t-esc="widget.formatFloat(j.get_actual_y1)"/>
+                         <span t-esc="widget.formatFloat(j.actual_demand_qty)"/>
                      </th>
                  </t>
              </tr>

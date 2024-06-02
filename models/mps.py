@@ -45,7 +45,7 @@ class MPS(models.Model):
                     'date_start': period['period_start'],
                     'date_end': period['period_end'],
                 }
-                t = self.env['mps.forecasted.qty'].create(vals)
+                self.env['mps.forecasted.qty'].create(vals)
 
     @api.model
     def create(self, vals):
