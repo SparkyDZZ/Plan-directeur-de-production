@@ -6,6 +6,7 @@ class MPS(models.Model):
     _name = 'mps'
     _description = 'Master Production Schedule'
 
+    display_name = fields.Char(string="Nom d'affichage", compute='_compute_display_name', store=True)
     bom_id = fields.Many2one('mrp.bom', string="Nomenclature")
     forecast_ids = fields.One2many('mps.forecasted.qty', 'mps_id', string="Quantité prévue à la date")
     forecast_target_qty = fields.Float(string="Stock de sécurité", default="0")
@@ -26,6 +27,11 @@ class MPS(models.Model):
                 ])
                 if existing_record:
                     raise ValidationError("Ce produit existe déja!")
+    @api.depends('product_id')
+    def _compute_display_name(self):
+        for record in self:
+            if record.product_id:
+                record.display_name = f"{record.product_id.display_name}"
 
     @api.model
     def create(self, vals):

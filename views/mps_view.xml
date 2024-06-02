@@ -38,12 +38,6 @@
             </field>
         </record>
 
-        <record id="mps_tree_action" model="ir.actions.act_window">
-            <field name="name">Add product</field>
-            <field name="res_model">mps</field>
-            <field name="view_mode">tree</field>
-        </record>
-
         <record id="action_mps_js" model="ir.actions.client">
             <field name="name">Plans directeur de production</field>
             <field name="tag">owl.action_mps_js</field>
@@ -60,8 +54,7 @@
         </record>
 
     </data>
-    <menuitem id="menu_root" name="MPS" web_icon="owl,static/description/icon.png">
-        <menuitem id="menu_todo_list" name="Plans directeur de production" action="mps_tree_action"/>
+    <menuitem id="menu_root" name="MPS" web_icon="owl,static/description/icon.png" action="action_mps_js">
         <menuitem id="menu_todo_owl" name="Plans directeur de production" sequence="10" action="action_mps_js"/>
         <menuitem id="menu_configuration" name="Configuration" sequence="10"/>
     </menuitem>
