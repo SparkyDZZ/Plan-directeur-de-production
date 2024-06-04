@@ -156,7 +156,7 @@ odoo.define('owl.mps', function (require) {
             this._unlinkProduct(productionScheduleId);
         },
 
-        load: function () {
+        get_mps: function () {
             return this._rpc({
                 model: 'mps',
                 method: 'search_read',
@@ -164,7 +164,33 @@ odoo.define('owl.mps', function (require) {
                 kwargs: { fields: [] },
             }).then((product_lines) => {
                 this.product_lines = product_lines;
+                return this.get_forecasts();
+            }).then(() => {
+                this.product_lines.forEach(product_line => {
+                    product_line.forecast_quantities = this.forecast_lines.filter(forecast => 
+                        product_line.forecast_ids.includes(forecast.id)
+                    );
+                });
+                console.log(this.product_lines);
                 this.render();
+            });
+        },
+        
+        get_forecasts: function () {
+            return this._rpc({
+                model: 'mps.forecasted.qty',
+                method: 'search_read',
+                args: [[]],
+                kwargs: { fields: [] }, // Fetch necessary fields
+            }).then((forecast_lines) => {
+                this.forecast_lines = forecast_lines;
+                console.log(this.forecast_lines);
+            });
+        },        
+
+        load: function () {
+            return this.mutex.exec(() => {
+                return this.get_mps();
             });
         },
 

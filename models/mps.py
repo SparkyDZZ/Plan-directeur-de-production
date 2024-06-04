@@ -45,7 +45,8 @@ class MPS(models.Model):
                     'date_start': period['period_start'],
                     'date_end': period['period_end'],
                 }
-                self.env['mps.forecasted.qty'].create(vals)
+                t=self.env['mps.forecasted.qty'].create(vals)
+                print(f"HELOOOOOOO {t.actual_demand_qty}")
 
     @api.model
     def create(self, vals):
@@ -59,7 +60,6 @@ class MPS(models.Model):
             product_id = product_tmpl.product_variant_id.id
             product_uom_id = product_tmpl.uom_id.id
 
-        # Create the MPS record
         mps_record = super(MPS, self).create({
             **vals,
             'product_id': product_id,

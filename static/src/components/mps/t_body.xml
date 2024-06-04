@@ -28,9 +28,9 @@
                      <span>Actual Demand Y-2</span>
                  </th>
                  <th/>
-                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                 <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
-                         <span t-esc="widget.formatFloat(2)"/>
+                         <span t-esc="widget.formatFloat(j.actual_demand_qty_y2)"/>
                      </th>
                  </t>
              </tr>
@@ -42,9 +42,9 @@
                      <span>Actual Demand Y-1</span>
                  </th>
                  <th/>
-                 <t t-foreach="i.forecast_ids" t-as="j" t-key="j">
+                 <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
-                         <span t-esc="widget.formatFloat(j.actual_demand_qty)"/>
+                         <span t-esc="widget.formatFloat(j.actual_demand_qty_y1)"/>
                      </th>
                  </t>
              </tr>
@@ -58,10 +58,10 @@
                      <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted demand. This value has to be entered manually.">Forecasted Demand</span>
                  </th>
                  <th/>
-                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                 <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
                          <a href="#" name="actual_demand" t-on-click="" data-action="action_open_actual_demand_details" t-att-data-date_index="j" class="">
-                             <t t-esc="widget.formatFloat(10)"/>
+                             <t t-esc="widget.formatFloat(j.actual_demand_qty)"/>
                          </a>
                          <span class=""> / </span>
                          <input type="text" data-date_index="" class="text-right form-control o_mrp_mps_input_forcast_qty o_mps_inline" t-att-value="widget.formatFloat(10)" t-on-change.stop="" t-on-focus.prevent=""/>
@@ -76,7 +76,7 @@
                      - Indirect Demand Forecast
                  </th>
                  <th/>
-                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                 <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
                          <t t-esc="widget.formatFloat(10)"/>
                      </th>
@@ -99,7 +99,7 @@
                          <t t-esc="i.min_to_replenish_qty"/> ≤…≤ <t t-esc="i.max_to_replenish_qty"/>
                      </button>
                  </th>
-                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                 <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="o_forecast_stock text-right pe-4">
                          <a href="#" name="actual_replenishment" t-on-click.prevent="_onClickOpenDetails" data-action="action_open_actual_replenishment_details" t-att-data-date_index="j" class="o_mrp_mps_open_details">
                              <t t-esc="widget.formatFloat(10)"/>
@@ -127,7 +127,7 @@
                          <t t-esc="i.forecast_target_qty or 0.0"/>
                      </button>
                  </th>
-                 <t t-foreach="widget.periods" t-as="j" t-key="j">
+                 <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
                          <span class="" t-esc="widget.formatFloat(100)"/>
                          <span class=""> / </span>
