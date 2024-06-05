@@ -70,18 +70,19 @@
              </tr>
 
              <!-- Indirect Demand Forecast -->
-
-             <tr name="indirect_demand" t-att-class="{'o_hidden': i.has_indirect_demand = false}" class="">
-                 <th scope="row" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted demand to fulfill the needs in components of the Manufacturing Orders.">
-                     - Indirect Demand Forecast
-                 </th>
-                 <th/>
-                 <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
-                     <th class="text-right pe-4">
-                         <t t-esc="widget.formatFloat(10)"/>
-                     </th>
-                 </t>
-             </tr>
+             <t t-if="i.has_indirect_demand">
+                <tr name="indirect_demand">
+                    <th scope="row" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted demand to fulfill the needs in components of the Manufacturing Orders.">
+                        - Indirect Demand Forecast
+                    </th>
+                    <th/>
+                    <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
+                        <th class="text-right pe-4">
+                            <t t-esc="widget.formatFloat(10)"/>
+                        </th>
+                    </t>
+                </tr>
+            </t>
 
              <!-- replenishRow" -->
 

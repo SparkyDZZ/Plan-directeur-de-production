@@ -16,7 +16,7 @@ class MPS(models.Model):
     product_tmpl_id = fields.Many2one('product.template', string="Modèle de produit", required=True)
     product_uom_id = fields.Many2one('uom.uom', string="Unité de mesure du produit")
     warehouse_id = fields.Many2one('stock.warehouse', string="Entrepôt")
-    has_indirect_demand = fields.Boolean(string="Has indirect demand", default=0)
+    has_indirect_demand = fields.Boolean(string="Has indirect demand", default=False)
 
     @api.constrains('product_tmpl_id')
     def _check_unique_product_tmpl_id(self):

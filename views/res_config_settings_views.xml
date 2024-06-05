@@ -15,7 +15,7 @@
                                         <div class="o_setting_right_pane">
                                             <label for="time_range"/>
                                             <div class="text-muted">
-                                                Plan manufacturing or purchase orders based on forecasts
+                                                Sélectionnez la plage de temps pour les opérations ou rapports (Mensuel, Hebdomadaire, Quotidien).
                                             </div>
                                             <div class="content-group">
                                                 <div class="mt16" >
@@ -28,7 +28,7 @@
                                         <div class="o_setting_right_pane">
                                             <label for="num_columns"/>
                                             <div class="text-muted">
-                                                Schedule manufacturing orders earlier to avoid delays
+                                                Définissez le nombre de colonnes à afficher dans les rapports ou vues.
                                              </div>
                                              <div class="content-group">
                                                 <div class="mt16" >

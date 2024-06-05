@@ -13,6 +13,7 @@
         'security/ir.model.access.csv',
         'views/mps_view.xml',
         'views/res_config_settings_views.xml',
+        'views/product_views.xml',
     ],
     'demo': [],
     'installable': True,

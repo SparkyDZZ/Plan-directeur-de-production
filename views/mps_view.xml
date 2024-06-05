@@ -21,7 +21,6 @@
                             <group>
                                 <field name="product_tmpl_id" />
                                 <field name="bom_id" domain="[('product_tmpl_id', '=', product_tmpl_id)]"/>
-                                <field name="warehouse_id" />
                             </group>
                             <group>
                                 <field name="forecast_target_qty" />
@@ -55,7 +54,8 @@
 
     </data>
     <menuitem id="menu_root" name="MPS" web_icon="owl,static/description/icon.png" action="action_mps_js">
-        <menuitem id="menu_todo_owl" name="Plans directeur de production" sequence="10" action="action_mps_js"/>
+        <menuitem id="product_menu" name="Produits" sequence="8"/>
+        <menuitem id="menu_pdp" name="Plans directeur de production" sequence="9" action="action_mps_js"/>
         <menuitem id="menu_configuration" name="Configuration" sequence="10"/>
     </menuitem>
 </odoo>
