@@ -107,7 +107,7 @@
                          </a>
                          <span class=""> / </span>
                          <div class="input-group o_mps_inline">
-                            <button type="button"  t-on-click.stop="(ev) => this._onClickAutomaticMode(ev, productionSchedule.id)" t-att-data-date_index="forecast_index" class="btn btn-link input-group-addon o_mrp_mps_automatic_mode fa fa-times o_no_padding"/>
+                             <button type="button" t-att-data-id="j.id" t-if="j.replenish_qty_updated" t-on-click.stop="(ev) => this._onClickAutomaticMode(ev, j.id)" class="btn btn-link input-group-addon o_mrp_mps_automatic_mode fa fa-times o_no_padding"/>
                              <input type="text" t-att-data-date_index="j" class="form-control text-right o_mrp_mps_input_replenish_qty o_mrp_mps_to_replenish o_mrp_mps_forced_replenish" t-att-data-id="j.id" t-att-value="widget.formatFloat(j.replenish_qty)" t-on-change.stop="(ev) => this._onChangeToReplenish(ev, j.id)" t-on-focus="_onFocusToReplenish"/>
                          </div>
                      </th>
@@ -130,7 +130,7 @@
                  </th>
                  <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
-                         <span class="" t-esc="widget.formatFloat(100)"/>
+                         <span class="" t-esc="widget.formatFloat(10)"/>
                          <span class=""> / </span>
                          <span class="" t-esc="widget.formatFloat(10)"/>
                      </th>

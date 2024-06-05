@@ -21,6 +21,7 @@ odoo.define('owl.mps', function (require) {
         events: {
             'change .o_mrp_mps_input_forcast_qty': '_onChangeForecast',
             'change .o_mrp_mps_input_replenish_qty': '_onChangeToReplenish',
+            'click .o_mrp_mps_automatic_mode': '_onClickAutomaticMode',
             'click .o_create_mps': '_onClickCreate',
             'click .o_mrp_mps_replenish': '_onClickReplenish',
             'click .o_unlink_mps': '_onClickUnlink',
@@ -149,14 +150,12 @@ odoo.define('owl.mps', function (require) {
             }).then((periods) => {
                 this.periods = periods;
                 const periodStrArray = periods.map(period => period.period_str);
-                console.log(periodStrArray);
             });
         },
 
         _onClickUnlink: function(ev) {
             ev.preventDefault();
             var productionScheduleId = $(ev.target).closest('.o_mps_content').data('id');
-            console.log(productionScheduleId);
             this._unlinkProduct(productionScheduleId);
         },
 
@@ -208,6 +207,27 @@ odoo.define('owl.mps', function (require) {
             });
         },
 
+        _onClickAutomaticMode: function(ev) {
+            ev.stopPropagation();
+            var $target = $(ev.target);
+            var replenishId = $target.closest('.o_mrp_mps_automatic_mode').data('id');
+            console.log(replenishId);
+            this._removeQtyToReplenish(replenishId);
+        },
+
+        _removeQtyToReplenish: function(replenishId) {
+            var self = this;
+            this.mutex.exec(function() {
+                return self._rpc({
+                    model: 'mps.forecasted.qty',
+                    method: 'remove_replenish_qty',
+                    args: [replenishId],
+                }).then(function() {
+                    self.load();
+                });
+            });
+        },
+
         _onFocusForecast: function(ev) {
             ev.preventDefault();
             $(ev.target).select();
@@ -232,7 +252,6 @@ odoo.define('owl.mps', function (require) {
                         product_line.forecast_ids.includes(forecast.id)
                     );
                 });
-                console.log(this.product_lines);
                 this.render();
             });
         },
@@ -245,7 +264,6 @@ odoo.define('owl.mps', function (require) {
                 kwargs: { fields: [] }, // Fetch necessary fields
             }).then((forecast_lines) => {
                 this.forecast_lines = forecast_lines;
-                console.log(this.forecast_lines);
             });
         },        
 

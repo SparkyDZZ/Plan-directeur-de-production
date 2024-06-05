@@ -11,6 +11,7 @@ class ForecastedQty(models.Model):
     date_end = fields.Date(string='Date de fin')
     procurement_launched = fields.Boolean(string="Le réapprovisionnement a été lancé pour cette estimation", default=False)
     replenish_qty = fields.Float(string="A réapprovisionner", default=0)
+    old_replenish_qty = fields.Float(string="Nouvelle qty de réapprovisionnement", store=False)
     replenish_qty_updated = fields.Boolean(string="Replenish_qty a été mise à jour manuellement", default=False)
     starting_inventory_qty = fields.Float(string="Starting Inventory Quantity", comput="_compute_starting_inventory_qty", store=False)
     actual_demand_qty = fields.Float(string="Actual Demand Quantity", compute='_compute_actual_demand_qty', store=False)
@@ -92,6 +93,27 @@ class ForecastedQty(models.Model):
     def set_replenish_qty(self, production_schedule_id, replenish_qty):
         production_schedule = self.browse(production_schedule_id)
         if production_schedule:
-            production_schedule.write({'replenish_qty': replenish_qty})
+            if production_schedule.old_replenish_qty == replenish_qty : 
+                production_schedule.write({'replenish_qty': replenish_qty, 'replenish_qty_updated' : False,})
+            else:
+                production_schedule.write({'replenish_qty': replenish_qty, 'replenish_qty_updated' : True,})
             return True
+        return False
+
+    @api.model
+    def set_procurement_launched(self, production_schedule_id):
+        production_schedule = self.browse(production_schedule_id)
+        if production_schedule:
+            production_schedule.write({'procurement_launched': True})
+            return True
+        return False
+
+    @api.model
+    def remove_replenish_qty(self, production_schedule_id):
+        production_schedule = self.browse(production_schedule_id)
+        if production_schedule:
+            production_schedule.write({'replenish_qty': self.old_replenish_qty, 'replenish_qty_updated' : False,})
+            print("TTTTTTTTTTTTTTT")
+            return True
+        print(f"JJJJJJJJJJJJJ : {production_schedule_id}")
         return False
