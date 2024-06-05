@@ -55,7 +55,7 @@
     <!-- Add a menu item for the settings -->
     <menuitem
         id="mps_config_settings_menu"
-        name="Settings"
+        name="Parametres"
         groups="base.group_system"
         parent="menu_configuration"
         action="mps_config_settings"

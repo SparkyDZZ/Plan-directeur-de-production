@@ -25,7 +25,7 @@
 
              <tr name="demand_forecast_year_minus_2" class="">
                  <th scope="row">
-                     <span>Actual Demand Y-2</span>
+                     <span>Demande Année-2</span>
                  </th>
                  <th/>
                  <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
@@ -39,7 +39,7 @@
 
              <tr name="demand_forecast_year_minus_1" class="">
                  <th scope="row">
-                     <span>Actual Demand Y-1</span>
+                     <span>Demande Année-1</span>
                  </th>
                  <th/>
                  <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
@@ -53,9 +53,9 @@
 
              <tr t-ref="forecastRow" name="demand_forecast" class="">
                  <th scope="row">
-                     - <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The confirmed demand, based on the confirmed sales orders.">Actual</span>
+                     - <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The confirmed demand, based on the confirmed sales orders.">Actuelle</span>
                      <span class=""> / </span>
-                     <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted demand. This value has to be entered manually.">Forecasted Demand</span>
+                     <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted demand. This value has to be entered manually.">Demande planifiée</span>
                  </th>
                  <th/>
                  <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
@@ -64,7 +64,7 @@
                              <t t-esc="widget.formatFloat(j.actual_demand_qty)"/>
                          </a>
                          <span class=""> / </span>
-                         <input type="text" data-date_index="" class="text-right form-control o_mrp_mps_input_forcast_qty o_mps_inline" t-att-value="widget.formatFloat(10)" t-on-change.stop="" t-on-focus.prevent=""/>
+                         <input type="text" t-att-data-id="j.id" t-attf-class="text-right form-control o_mrp_mps_input_forcast_qty o_mps_inline" t-att-value="widget.formatFloat(j.forecast_qty)" t-on-change.stop="(ev) => this._onChangeForecast(ev, j.id)" t-on-focus.prevent="_onFocusForecast"/>
                      </th>
                  </t>
              </tr>
@@ -88,9 +88,9 @@
 
              <tr t-ref="replenishRow" name="to_replenish" class="">
                  <th scope="row">
-                     + <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The quantity being replenished, based on the Requests for Quotation and the Manufacturing Orders.">Actual</span>
+                     + <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The quantity being replenished, based on the Requests for Quotation and the Manufacturing Orders.">Actuelle</span>
                      <span class=""> / </span>
-                     <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The quantity to replenish through Purchase Orders or Manufacturing Orders.">Suggested Replenishment</span>
+                     <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The quantity to replenish through Purchase Orders or Manufacturing Orders.">Réapprovisionnement suggéré</span>
                      <button type="button" title="Replenish" class="" t-on-click.stop="_onClickReplenish" t-on-mouseover.stop="_onMouseOverReplenish" t-on-mouseout.stop="_onMouseOutReplenish">
                          Replenish
                      </button>
@@ -107,8 +107,8 @@
                          </a>
                          <span class=""> / </span>
                          <div class="input-group o_mps_inline">
-                             <button type="button" t-if="j.replenish_qty_updated" t-on-click.stop="" t-att-data-date_index="j" class="btn btn-link input-group-addon o_mrp_mps_automatic_mode fa fa-times o_no_padding"></button>
-                             <input type="text" t-att-data-date_index="j" class="form-control text-right o_mrp_mps_input_replenish_qty o_mrp_mps_to_replenish o_mrp_mps_forced_replenish" t-att-value="widget.formatFloat(10)" t-on-change.stop="" t-on-focus=""/>
+                            <button type="button"  t-on-click.stop="(ev) => this._onClickAutomaticMode(ev, productionSchedule.id)" t-att-data-date_index="forecast_index" class="btn btn-link input-group-addon o_mrp_mps_automatic_mode fa fa-times o_no_padding"/>
+                             <input type="text" t-att-data-date_index="j" class="form-control text-right o_mrp_mps_input_replenish_qty o_mrp_mps_to_replenish o_mrp_mps_forced_replenish" t-att-data-id="j.id" t-att-value="widget.formatFloat(j.replenish_qty)" t-on-change.stop="(ev) => this._onChangeToReplenish(ev, j.id)" t-on-focus="_onFocusToReplenish"/>
                          </div>
                      </th>
                  </t>

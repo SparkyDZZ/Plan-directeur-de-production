@@ -54,7 +54,6 @@
 
     </data>
     <menuitem id="menu_root" name="MPS" web_icon="owl,static/description/icon.png" action="action_mps_js">
-        <menuitem id="product_menu" name="Produits" sequence="8"/>
         <menuitem id="menu_pdp" name="Plans directeur de production" sequence="9" action="action_mps_js"/>
         <menuitem id="menu_configuration" name="Configuration" sequence="10"/>
     </menuitem>

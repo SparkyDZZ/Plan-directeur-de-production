@@ -6,15 +6,18 @@ class ForecastedQty(models.Model):
     _description = 'Forecasted Quantity'
 
     name = fields.Char(string="Nom", readonly=True)
-    quantity = fields.Float(string='Quantity')
+    forecast_qty = fields.Float(string='Quantity', default=0)
     date_start = fields.Date(string='Date debut')
     date_end = fields.Date(string='Date de fin')
+    procurement_launched = fields.Boolean(string="Le réapprovisionnement a été lancé pour cette estimation", default=False)
+    replenish_qty = fields.Float(string="A réapprovisionner", default=0)
+    replenish_qty_updated = fields.Boolean(string="Replenish_qty a été mise à jour manuellement", default=False)
     starting_inventory_qty = fields.Float(string="Starting Inventory Quantity", comput="_compute_starting_inventory_qty", store=False)
     actual_demand_qty = fields.Float(string="Actual Demand Quantity", compute='_compute_actual_demand_qty', store=False)
-    actual_demand_qty_y2 = fields.Float(string="Actual Demand Quantity Y-2", compute='_compute_actual_demand_qty_y2', store=False)
-    actual_demand_qty_y1 = fields.Float(string="Actual Demand Quantity Y-1", compute='_compute_actual_demand_qty_y1', store=False)
+    actual_demand_qty_y2 = fields.Float(string="Demande Année-2", compute='_compute_actual_demand_qty_y2', store=False)
+    actual_demand_qty_y1 = fields.Float(string="Demande Année-1", compute='_compute_actual_demand_qty_y1', store=False)
 
-    mps_id = fields.Many2one('mps', string="Master Production Schedule", ondelete='cascade')
+    mps_id = fields.Many2one('mps', string="Master Production Schedule", required=True, ondelete='cascade')
 
     @api.depends('date_start', 'date_end', 'mps_id')
     def _compute_starting_inventory_qty(self):
@@ -76,3 +79,19 @@ class ForecastedQty(models.Model):
                 record.actual_demand_qty_y1 = sum(d.product_uom_qty for d in demand_y1)
             else:
                 record.actual_demand_qty_y1 = 0
+
+    @api.model
+    def set_forecast_qty(self, production_schedule_id, forecast_qty):
+        production_schedule = self.browse(production_schedule_id)
+        if production_schedule:
+            production_schedule.write({'forecast_qty': forecast_qty})
+            return True
+        return False
+
+    @api.model
+    def set_replenish_qty(self, production_schedule_id, replenish_qty):
+        production_schedule = self.browse(production_schedule_id)
+        if production_schedule:
+            production_schedule.write({'replenish_qty': replenish_qty})
+            return True
+        return False

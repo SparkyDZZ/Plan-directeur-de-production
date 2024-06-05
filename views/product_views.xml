@@ -64,9 +64,9 @@
         </record>
 
         <menuitem id="menu_mrp_product_form"
-            name="Products"
+            name="Produits"
             action="product_template_action"
-            parent="product_menu" sequence="1"/>
+            parent="menu_root" sequence="1"/>
 
     </data>
 </odoo>

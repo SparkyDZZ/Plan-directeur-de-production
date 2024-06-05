@@ -30,7 +30,7 @@
 
         <t t-name="OwlMps.Buttons" id="OwlMps.Buttons" t-set-slot="layout-buttons">
                 <button type="button" class="btn btn-primary o_mrp_mps_replenish">Replenish</button>
-                <button type="button" class="btn btn-secondary o_create_mps">Add a Product</button>
+                <button type="button" class="btn btn-secondary o_create_mps">Ajouter un produit</button>
         </t>
 
     </templates>

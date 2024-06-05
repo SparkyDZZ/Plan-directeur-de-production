@@ -19,11 +19,15 @@ odoo.define('owl.mps', function (require) {
         searchMenuTypes: ['filter', 'favorite'],
 
         events: {
+            'change .o_mrp_mps_input_forcast_qty': '_onChangeForecast',
+            'change .o_mrp_mps_input_replenish_qty': '_onChangeToReplenish',
             'click .o_create_mps': '_onClickCreate',
             'click .o_mrp_mps_replenish': '_onClickReplenish',
             'click .o_unlink_mps': '_onClickUnlink',
             'mouseover .o_mrp_mps_replenish': '_onMouseOverReplenish',
-            'mouseout .o_mrp_mps_replenish': '_onMouseOutReplenish'
+            'mouseout .o_mrp_mps_replenish': '_onMouseOutReplenish',
+            'focus .o_mrp_mps_input_forcast_qty': '_onFocusForecast',
+            'focus .o_mrp_mps_input_replenish_qty': '_onFocusToReplenish',
         },
         custom_events: _.extend({}, AbstractAction.prototype.custom_events, {
             closed: '_onActionFormClosed',
@@ -67,7 +71,7 @@ odoo.define('owl.mps', function (require) {
 
         update_cp: async function() {
                 const res = await this.updateControlPanel({
-                    title: _t('Master Production Schedule'),
+                    title: _t('Plan Directeur de Production'),
                     cp_content: {
                         $buttons: this.$buttons,
                     },
@@ -154,6 +158,63 @@ odoo.define('owl.mps', function (require) {
             var productionScheduleId = $(ev.target).closest('.o_mps_content').data('id');
             console.log(productionScheduleId);
             this._unlinkProduct(productionScheduleId);
+        },
+
+        _onChangeForecast: function(ev) {
+            ev.stopPropagation();
+            var $target = $(ev.target);
+            var productionScheduleId = $target.closest('.o_mrp_mps_input_forcast_qty').data('id');
+            var forecastQty = parseFloat($target.val());
+            if (isNaN(forecastQty)) {
+            } else {
+                this._saveForecast(productionScheduleId, forecastQty);
+            }
+        },
+
+        _saveForecast: function(productionScheduleId, forecastQty) {
+            var self = this;
+            this.mutex.exec(function() {
+                return self._rpc({
+                    model: 'mps.forecasted.qty',
+                    method: 'set_forecast_qty',
+                    args: [productionScheduleId, forecastQty],
+                }).then(function() {
+                    self.load();
+                });
+            });
+        },
+
+        _onChangeToReplenish: function(ev) {
+            ev.stopPropagation();
+            var $target = $(ev.target);
+            var RproductionScheduleId = $target.closest('.o_mrp_mps_input_replenish_qty').data('id');
+            var replenishQty = parseFloat($target.val());
+            if (isNaN(replenishQty)) {
+            } else {
+                this._saveToReplenish(RproductionScheduleId, replenishQty);
+            }
+        },
+
+        _saveToReplenish: function(RproductionScheduleId, replenishQty) {
+            var self = this;
+            this.mutex.exec(function() {
+                return self._rpc({
+                    model: 'mps.forecasted.qty',
+                    method: 'set_replenish_qty',
+                    args: [RproductionScheduleId, replenishQty],
+                }).then(function() {
+                    self.load();
+                });
+            });
+        },
+
+        _onFocusForecast: function(ev) {
+            ev.preventDefault();
+            $(ev.target).select();
+        },
+        _onFocusToReplenish: function(ev) {
+            ev.preventDefault();
+            $(ev.target).select();
         },
 
         get_mps: function () {
