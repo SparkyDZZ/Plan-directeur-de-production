@@ -22,7 +22,9 @@ odoo.define('owl.mps', function (require) {
             'change .o_mrp_mps_input_forcast_qty': '_onChangeForecast',
             'change .o_mrp_mps_input_replenish_qty': '_onChangeToReplenish',
             'click .o_mrp_mps_automatic_mode': '_onClickAutomaticMode',
+            'click .o_mrp_mps_record_url': '_onClickRecordLink',
             'click .o_create_mps': '_onClickCreate',
+            'click .o_mrp_mps_edit': '_onClickEdit',
             'click .o_mrp_mps_replenish': '_onClickReplenish',
             'click .o_unlink_mps': '_onClickUnlink',
             'mouseover .o_mrp_mps_replenish': '_onMouseOverReplenish',
@@ -40,7 +42,7 @@ odoo.define('owl.mps', function (require) {
             this.context = action.context 
             this.actionManager = parent;
             this.formatFloat = field_utils.format.float;
-            this.searchModelConfig = { modelName: 'mps' };
+            this.searchModelConfig.modelName = 'mps';
             this.product_lines = [];
             this.periods = []; 
             this.products = []; 
@@ -107,6 +109,42 @@ odoo.define('owl.mps', function (require) {
                     views: [[false, 'form']],
                     target: 'new',
                 }, { on_close: () => this.load() });
+            });
+        },
+
+        _onClickEdit: function(ev) {
+            ev.stopPropagation();
+            var productionScheduleId = $(ev.target).closest('.o_mrp_mps_edit').data('id');
+            this._editProduct(productionScheduleId);
+        },
+
+        _editProduct: function(productionScheduleId) {
+            var self = this;
+            var exitCallback = function() {
+                return self.load();
+            };
+            this.mutex.exec(function() {
+                return self.do_action({
+                    name: 'Edit Production Schedule',
+                    type: 'ir.actions.act_window',
+                    res_model: 'mps',
+                    views: [[false, 'form']],
+                    target: 'new',
+                    res_id: productionScheduleId,
+                }, {
+                    on_close: exitCallback,
+                });
+            });
+        },
+
+        _onClickRecordLink: function(ev) {
+            ev.preventDefault();
+            return this.do_action({
+                type: 'ir.actions.act_window',
+                res_model: $(ev.currentTarget).data('model'),
+                res_id: $(ev.currentTarget).data('res-id'),
+                views: [[false, 'form']],
+                target: 'current'
             });
         },
 

@@ -7,7 +7,7 @@
         Owl Learn
     """,
     'category': 'Manufacturing',
-    'depends' : ['mrp', 'base', 'sale'],
+    'depends' : ['mrp', 'sale_management',],
     'images' : ['static/description/icon.png'],
     'data': [
         'security/ir.model.access.csv',

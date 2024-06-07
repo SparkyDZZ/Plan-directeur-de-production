@@ -12,8 +12,8 @@ class MPS(models.Model):
     forecast_target_qty = fields.Float(string="Stock de sécurité", default="0")
     max_to_replenish_qty = fields.Float(string="Maximum à réapprovisionner", default=1000)
     min_to_replenish_qty = fields.Float(string="Minimum à réapprovisionner")
-    product_id = fields.Many2one('product.product', string="Produit")
-    product_tmpl_id = fields.Many2one('product.template', string="Modèle de produit", required=True)
+    product_id = fields.Many2one('product.product', string="Produit", required=True)
+    product_tmpl_id = fields.Many2one('product.template', string="Modèle de produit", required=True, related='product_id.product_tmpl_id')
     product_uom_id = fields.Many2one('uom.uom', string="Unité de mesure du produit")
     warehouse_id = fields.Many2one('stock.warehouse', string="Entrepôt")
     has_indirect_demand = fields.Boolean(string="Has indirect demand", default=False)
@@ -83,9 +83,8 @@ class MPS(models.Model):
 
         return mps_record
 
-    @api.model
     def save(self, vals):
-        return {'type': 'ir.actions.act_window_close'}
+        return True
 
     def action_delete(self):
         for rec in self:

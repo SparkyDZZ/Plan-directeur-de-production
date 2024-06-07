@@ -1,4 +1,5 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
@@ -27,6 +28,9 @@ class ResConfigSettings(models.TransientModel):
 
     @api.model
     def set_values(self):
+        res = self.env['mps'].search_count([])
+        if res :
+            raise UserError(_('Cannot change configuration settings while MPS records exist.'))
         super(ResConfigSettings, self).set_values()
         config_param = self.env['ir.config_parameter'].sudo()
 
