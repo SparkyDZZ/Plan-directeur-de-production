@@ -16,7 +16,7 @@
                  <th/>
                  <t t-foreach="widget.periods" t-as="j" t-key="j">
                      <th class="text-right pe-4">
-                         <span class="" t-esc="widget.formatFloat(10)" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted quantity in stock at the beginning of the period."/>
+                         <span class="" t-esc="widget.formatFloat(j.starting_inventory_qty)" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted quantity in stock at the beginning of the period."/>
                      </th>
                  </t>
              </tr>
@@ -130,7 +130,7 @@
                  </th>
                  <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
-                         <span class="" t-esc="widget.formatFloat(10)"/>
+                         <span class="" t-esc="widget.formatFloat(j.starting_inventory_qty + j.replenish_qty - j.forecast_qty )"/>
                          <span class=""> / </span>
                          <span class="" t-esc="widget.formatFloat(10)"/>
                      </th>

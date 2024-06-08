@@ -13,7 +13,7 @@ class ForecastedQty(models.Model):
     replenish_qty = fields.Float(string="A réapprovisionner", default=0)
     old_replenish_qty = fields.Float(string="Nouvelle qty de réapprovisionnement", store=False)
     replenish_qty_updated = fields.Boolean(string="Replenish_qty a été mise à jour manuellement", default=False)
-    starting_inventory_qty = fields.Float(string="Starting Inventory Quantity", comput="_compute_starting_inventory_qty", store=False)
+    starting_inventory_qty = fields.Float(string="Starting Inventory Quantity", compute="_compute_starting_inventory_qty", store=False)
     actual_demand_qty = fields.Float(string="Actual Demand Quantity", compute='_compute_actual_demand_qty', store=False)
     actual_demand_qty_y2 = fields.Float(string="Demande Année-2", compute='_compute_actual_demand_qty_y2', store=False)
     actual_demand_qty_y1 = fields.Float(string="Demande Année-1", compute='_compute_actual_demand_qty_y1', store=False)
@@ -28,7 +28,7 @@ class ForecastedQty(models.Model):
                 ('date_end', '<', record.date_start),
             ], order='date_end desc', limit=1)
             if previous_period:
-                record.starting_inventory_qty = previous_period.quantity
+                record.starting_inventory_qty = previous_period.starting_inventory_qty
             else:
                 record.starting_inventory_qty = 0
 
