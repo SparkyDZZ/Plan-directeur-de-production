@@ -28,9 +28,9 @@ class ResConfigSettings(models.TransientModel):
 
     @api.model
     def set_values(self):
-        res = self.env['mps'].search_count([])
-        if res :
-            raise UserError(_('Cannot change configuration settings while MPS records exist.'))
+        mps = self.env['mps'].search_count([])
+        if mps :
+            raise UserError(_('Impossible de modifier les paramètres de configuration tant que des produits dans PDP existent.'))
         super(ResConfigSettings, self).set_values()
         config_param = self.env['ir.config_parameter'].sudo()
 

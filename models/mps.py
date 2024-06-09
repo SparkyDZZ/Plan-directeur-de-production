@@ -15,19 +15,18 @@ class MPS(models.Model):
     product_id = fields.Many2one('product.product', string="Produit", required=True)
     product_tmpl_id = fields.Many2one('product.template', string="Modèle de produit", required=True, related='product_id.product_tmpl_id')
     product_uom_id = fields.Many2one('uom.uom', string="Unité de mesure du produit")
-    warehouse_id = fields.Many2one('stock.warehouse', string="Entrepôt")
+    warehouse_id = fields.Many2one('stock.warehouse', string="Entrepôt", required=True)
     has_indirect_demand = fields.Boolean(string="Has indirect demand", default=False)
 
-    @api.constrains('product_tmpl_id')
-    def _check_unique_product_tmpl_id(self):
+    @api.constrains('product_id')
+    def _check_unique_product(self):
         for record in self:
-            if record.product_tmpl_id:
-                existing_record = self.search([
-                    ('id', '!=', record.id),
-                    ('product_tmpl_id', '=', record.product_tmpl_id.id),
-                ])
-                if existing_record:
-                    raise ValidationError("Ce produit existe déja!")
+            existing_mps = self.search([
+                ('product_id', '=', record.product_id.id),
+                ('id', '!=', record.id)
+            ])
+            if existing_mps:
+                raise ValidationError('Ce produit existe déja!')
 
     @api.depends('product_id')
     def _compute_display_name(self):

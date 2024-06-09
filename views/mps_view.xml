@@ -22,6 +22,7 @@
                                 <field name="product_id" attrs="{'readonly': [('id', '!=', False)]}"/>
                                 <field name="product_tmpl_id" invisible="1"/>
                                 <field name="bom_id" domain="[('product_tmpl_id', '=', product_tmpl_id)]" attrs="{'readonly': [('id', '!=', False)]}"/>
+                                <field name="warehouse_id" attrs="{'readonly': [('id', '!=', False)]}"/>
                             </group>
                             <group>
                                 <field name="forecast_target_qty" />

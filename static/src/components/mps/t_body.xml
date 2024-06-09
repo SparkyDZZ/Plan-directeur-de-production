@@ -6,7 +6,7 @@
              <tr class="bg-light">
                  <th scope="col">
                      <a href="#" class="o_mrp_mps_record_url" t-att-data-res-id="i.product_id[0]" t-att-data-model="'product.product'" t-on-click.prevent="_onClickRecordLink">
-                         <t t-esc="i.product_tmpl_id[1]"/>
+                         <t t-esc="i.product_id[1]"/>
                      </a>
                      <span> - <t t-esc="i.warehouse_id.name"/></span>
                      <span> </span>
@@ -14,23 +14,9 @@
                      <a href="#" class="fa fa-trash-o text-black o_unlink_mps" role="img" aria-label="Delete" title="Delete"></a>
                  </th>
                  <th/>
-                 <t t-foreach="widget.periods" t-as="j" t-key="j">
-                     <th class="text-right pe-4">
-                         <span class="" t-esc="widget.formatFloat(j.starting_inventory_qty)" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted quantity in stock at the beginning of the period."/>
-                     </th>
-                 </t>
-             </tr>
-
-            <!-- Actual Demand Y-2 -->
-
-             <tr name="demand_forecast_year_minus_2" class="">
-                 <th scope="row">
-                     <span>Demande Année-2</span>
-                 </th>
-                 <th/>
                  <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
-                         <span t-esc="widget.formatFloat(j.actual_demand_qty_y2)"/>
+                         <span class="" t-esc="widget.formatFloat(j.starting_inventory_qty)" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The forecasted quantity in stock at the beginning of the period."/>
                      </th>
                  </t>
              </tr>
@@ -130,9 +116,9 @@
                  </th>
                  <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
-                         <span class="" t-esc="widget.formatFloat(j.starting_inventory_qty + j.replenish_qty - j.forecast_qty )"/>
+                         <span class="" t-esc="widget.formatFloat(j.replenish_qty - j.actual_demand_qty + j.starting_inventory_qty)"/>
                          <span class=""> / </span>
-                         <span class="" t-esc="widget.formatFloat(10)"/>
+                         <span t-attf-class="{{0 > j.safety_stock_qty and 'text-danger' or ''}}" t-esc="widget.formatFloat(j.safety_stock_qty)"/>
                      </th>
                  </t>
              </tr>
