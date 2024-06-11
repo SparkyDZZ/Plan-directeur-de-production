@@ -64,7 +64,7 @@
                     <th/>
                     <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                         <th class="text-right pe-4">
-                            <t t-esc="widget.formatFloat(10)"/>
+                            <t t-esc="widget.formatFloat(j.indirect_demand_forecast)"/>
                         </th>
                     </t>
                 </tr>

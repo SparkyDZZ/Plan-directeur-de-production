@@ -303,7 +303,7 @@ odoo.define('owl.mps', function (require) {
             }).then((forecast_lines) => {
                 this.forecast_lines = forecast_lines;
             });
-        },        
+        },     
 
         load: function () {
             return this.mutex.exec(() => {

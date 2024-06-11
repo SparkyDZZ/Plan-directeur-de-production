@@ -10,13 +10,14 @@ class ForecastedQty(models.Model):
     date_start = fields.Date(string='Date debut')
     date_end = fields.Date(string='Date de fin')
     procurement_launched = fields.Boolean(string="Le réapprovisionnement a été lancé pour cette estimation", default=False)
-    replenish_qty = fields.Float(string="A réapprovisionner", default=0)
+    replenish_qty = fields.Float(string="A réapprovisionner", compute="_compute_replenish_qty", store=True)
     old_replenish_qty = fields.Float(string="Nouvelle qty de réapprovisionnement", store=False)
     replenish_qty_updated = fields.Boolean(string="Replenish_qty a été mise à jour manuellement", default=False)
     starting_inventory_qty = fields.Float(string="Starting Inventory Quantity", compute="_compute_starting_inventory_qty", store=False)
-    safety_stock_qty = fields.Float(string="forcsasted stock", compute="_compute_safety_stock_qty", store=False)
+    safety_stock_qty = fields.Float(string="Forecasted Stock", compute="_compute_safety_stock_qty", store=False)
     actual_demand_qty = fields.Float(string="Actual Demand Quantity", compute='_compute_actual_demand_qty', store=False)
     actual_demand_qty_y1 = fields.Float(string="Demande Année-1", compute='_compute_actual_demand_qty_y1', store=False)
+    indirect_demand_forecast = fields.Float(string="Prévision de la demande indirecte", compute="_compute_indirect_demand", store=False)
 
     mps_id = fields.Many2one('mps', string="Master Production Schedule", required=True, ondelete='cascade')
 
@@ -36,10 +37,10 @@ class ForecastedQty(models.Model):
                 ], limit=1)
                 record.starting_inventory_qty = stock_quant.quantity if stock_quant else 0
 
-    @api.depends('mps_id', 'starting_inventory_qty', 'replenish_qty', 'forecast_qty')
+    @api.depends('mps_id', 'starting_inventory_qty', 'replenish_qty', 'forecast_qty', 'indirect_demand_forecast')
     def _compute_safety_stock_qty(self):
         for record in self:
-            record.safety_stock_qty = record.starting_inventory_qty + record.replenish_qty - record.forecast_qty
+            record.safety_stock_qty = record.starting_inventory_qty + record.replenish_qty - record.forecast_qty - record.indirect_demand_forecast
 
     @api.depends('date_start', 'date_end', 'mps_id')
     def _compute_actual_demand_qty(self):
@@ -54,10 +55,8 @@ class ForecastedQty(models.Model):
                 record.actual_demand_qty = sum(d.product_uom_qty for d in demand)
                 for d in demand:
                     print(d.order_id.id)
-
             else:
                 record.actual_demand_qty = 0
-                
 
     @api.depends('date_start', 'date_end', 'mps_id')
     def _compute_actual_demand_qty_y1(self):
@@ -75,6 +74,60 @@ class ForecastedQty(models.Model):
             else:
                 record.actual_demand_qty_y1 = 0
 
+    @api.depends('date_start', 'date_end', 'mps_id')
+    def _compute_indirect_demand(self):
+        for record in self:
+            if record.mps_id and record.mps_id.has_indirect_demand:
+                parent_mps = self.env['mps'].search([
+                    ('bom_id.bom_line_ids.product_id', '=', record.mps_id.product_id.id),
+                    ('warehouse_id', '=', record.mps_id.warehouse_id.id)
+                ], limit=1)
+
+                if parent_mps:
+                    bom_line = self.env['mrp.bom.line'].search([
+                        ('bom_id', '=', parent_mps.bom_id.id),
+                        ('product_id', '=', record.mps_id.product_id.id)
+                    ], limit=1)
+
+                    if bom_line:
+                        record.indirect_demand_forecast = parent_mps.forecast_ids.filtered(lambda f: f.date_start == record.date_start).replenish_qty * bom_line.product_qty
+                    else:
+                        record.indirect_demand_forecast = 0
+                else:
+                    record.indirect_demand_forecast = 0
+            else:
+                record.indirect_demand_forecast = 0
+
+    @api.depends('forecast_qty', 'starting_inventory_qty', 'safety_stock_qty', 'indirect_demand_forecast','mps_id')
+    def _compute_replenish_qty(self):
+        for record in self:
+            if not record.replenish_qty_updated:
+                min_qty = record.mps_id.min_to_replenish_qty
+                max_qty = record.mps_id.max_to_replenish_qty
+                replenish_needed = record.forecast_qty + record.mps_id.forecast_target_qty - record.starting_inventory_qty + record.indirect_demand_forecast
+                if replenish_needed > max_qty:
+                    record.replenish_qty = max_qty
+                elif replenish_needed < min_qty:
+                    record.replenish_qty = min_qty
+                else:
+                    record.replenish_qty = replenish_needed
+            else:
+                record.replenish_qty = record.replenish_qty
+
+    @api.model
+    def write(self, vals):
+        res = super(ForecastedQty, self).write(vals)
+        if 'forecast_qty' in vals:
+            self._compute_replenish_qty_for_all_related_records()
+        return res
+
+    @api.model
+    def _compute_replenish_qty_for_all_related_records(self):
+        for record in self:
+            related_records = self.search([('mps_id', '=', record.mps_id.id)])
+            for related_record in related_records:
+                related_record._compute_replenish_qty()
+
     @api.model
     def set_forecast_qty(self, production_schedule_id, forecast_qty):
         production_schedule = self.browse(production_schedule_id)
@@ -87,10 +140,10 @@ class ForecastedQty(models.Model):
     def set_replenish_qty(self, production_schedule_id, replenish_qty):
         production_schedule = self.browse(production_schedule_id)
         if production_schedule:
-            if production_schedule.old_replenish_qty == replenish_qty : 
-                production_schedule.write({'replenish_qty': replenish_qty, 'replenish_qty_updated' : False,})
+            if production_schedule.old_replenish_qty == replenish_qty:
+                production_schedule.write({'replenish_qty': replenish_qty, 'replenish_qty_updated': False})
             else:
-                production_schedule.write({'replenish_qty': replenish_qty, 'replenish_qty_updated' : True,})
+                production_schedule.write({'replenish_qty': replenish_qty, 'replenish_qty_updated': True})
             return True
         return False
 
@@ -106,6 +159,6 @@ class ForecastedQty(models.Model):
     def remove_replenish_qty(self, production_schedule_id):
         production_schedule = self.browse(production_schedule_id)
         if production_schedule:
-            production_schedule.write({'replenish_qty': self.old_replenish_qty, 'replenish_qty_updated' : False,})
+            production_schedule.write({'replenish_qty': production_schedule.old_replenish_qty, 'replenish_qty_updated': False})
             return True
         return False
