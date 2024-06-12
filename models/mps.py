@@ -45,7 +45,6 @@ class MPS(models.Model):
                     'date_end': period['period_end'],
                 }
                 t=self.env['mps.forecasted.qty'].create(vals)
-                print(f"HELOOOOOOO {t.actual_demand_qty}")
 
     @api.model
     def create(self, vals):

@@ -65,6 +65,7 @@ odoo.define('owl.mps', function (require) {
         start: async function() {
             await this._super(...arguments);
             this.$el.html(QWeb.render(this.template, { widget: this, }));
+            this.$('.o_mrp_mps_input_forcast_qty').on('change', this._onChangeForecast.bind(this));
             await this.update_cp();
         },
 
@@ -82,24 +83,6 @@ odoo.define('owl.mps', function (require) {
                 return res;
         },
 
-        // generatePeriods: function () {
-        //     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        //     const currentDate = new Date();
-        //     let currentMonthIndex = currentDate.getMonth();
-        //     let currentYear = currentDate.getFullYear();
-        //     const periods = [];
-
-        //     for (let i = 0; i < 12; i++) {
-        //         periods.push(`${months[currentMonthIndex]} ${currentYear}`);
-        //         currentMonthIndex++;
-        //         if (currentMonthIndex === 12) {
-        //             currentMonthIndex = 0;
-        //             currentYear++;
-        //         }
-        //     }
-
-        //     this.periods = periods;
-        // },
 
         _onClickCreate: function (ev) {
             this.mutex.exec(() => {
@@ -291,6 +274,7 @@ odoo.define('owl.mps', function (require) {
                     );
                 });
                 this.render();
+                console.log(this.product_lines)
             });
         },
         
@@ -299,7 +283,7 @@ odoo.define('owl.mps', function (require) {
                 model: 'mps.forecasted.qty',
                 method: 'search_read',
                 args: [[]],
-                kwargs: { fields: [] }, // Fetch necessary fields
+                kwargs: { fields: [] },
             }).then((forecast_lines) => {
                 this.forecast_lines = forecast_lines;
             });

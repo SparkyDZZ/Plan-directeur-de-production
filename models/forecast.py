@@ -6,7 +6,7 @@ class ForecastedQty(models.Model):
     _description = 'Forecasted Quantity'
 
     name = fields.Char(string="Nom", readonly=True)
-    forecast_qty = fields.Float(string='Quantity', default=0)
+    forecast_qty = fields.Float(string='Quantity', default=0.0)
     date_start = fields.Date(string='Date debut')
     date_end = fields.Date(string='Date de fin')
     procurement_launched = fields.Boolean(string="Le réapprovisionnement a été lancé pour cette estimation", default=False)
@@ -53,8 +53,6 @@ class ForecastedQty(models.Model):
                     ('order_id.date_order', '<=', record.date_end)
                 ])
                 record.actual_demand_qty = sum(d.product_uom_qty for d in demand)
-                for d in demand:
-                    print(d.order_id.id)
             else:
                 record.actual_demand_qty = 0
 
@@ -113,6 +111,12 @@ class ForecastedQty(models.Model):
                     record.replenish_qty = replenish_needed
             else:
                 record.replenish_qty = record.replenish_qty
+
+    @api.model
+    def create(self, vals):
+        res = super(ForecastedQty, self).create(vals)
+        res._compute_replenish_qty()
+        return res
 
     @api.model
     def write(self, vals):
