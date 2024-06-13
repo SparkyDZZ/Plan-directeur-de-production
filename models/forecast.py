@@ -10,14 +10,14 @@ class ForecastedQty(models.Model):
     date_start = fields.Date(string='Date debut')
     date_end = fields.Date(string='Date de fin')
     procurement_launched = fields.Boolean(string="Le réapprovisionnement a été lancé pour cette estimation", default=False)
-    replenish_qty = fields.Float(string="A réapprovisionner", compute="_compute_replenish_qty", store=True)
-    old_replenish_qty = fields.Float(string="Nouvelle qty de réapprovisionnement", store=False)
+    replenish_qty = fields.Float(string="A réapprovisionner", compute="_compute_replenish_qty", default=0.0, store=True)
+    old_replenish_qty = fields.Float(string="Nouvelle qty de réapprovisionnement")
     replenish_qty_updated = fields.Boolean(string="Replenish_qty a été mise à jour manuellement", default=False)
     starting_inventory_qty = fields.Float(string="Starting Inventory Quantity", compute="_compute_starting_inventory_qty", store=False)
-    safety_stock_qty = fields.Float(string="Forecasted Stock", compute="_compute_safety_stock_qty", store=False)
-    actual_demand_qty = fields.Float(string="Actual Demand Quantity", compute='_compute_actual_demand_qty', store=False)
+    safety_stock_qty = fields.Float(string="Forecasted Stock", compute="_compute_safety_stock_qty", default=0.0,store=False)
+    actual_demand_qty = fields.Float(string="Actual Demand Quantity", compute='_compute_actual_demand_qty', default=0.0, store=False)
     actual_demand_qty_y1 = fields.Float(string="Demande Année-1", compute='_compute_actual_demand_qty_y1', store=False)
-    indirect_demand_forecast = fields.Float(string="Prévision de la demande indirecte", compute="_compute_indirect_demand", store=False)
+    indirect_demand_forecast = fields.Float(string="Prévision de la demande indirecte", compute="_compute_indirect_demand", default=0.0, store=False)
 
     mps_id = fields.Many2one('mps', string="Master Production Schedule", required=True, ondelete='cascade')
 
@@ -96,7 +96,7 @@ class ForecastedQty(models.Model):
             else:
                 record.indirect_demand_forecast = 0
 
-    @api.depends('forecast_qty', 'starting_inventory_qty', 'safety_stock_qty', 'indirect_demand_forecast','mps_id')
+    @api.depends('forecast_qty', 'starting_inventory_qty', 'safety_stock_qty', 'indirect_demand_forecast','mps_id', 'replenish_qty_updated')
     def _compute_replenish_qty(self):
         for record in self:
             if not record.replenish_qty_updated:
@@ -105,17 +105,20 @@ class ForecastedQty(models.Model):
                 replenish_needed = record.forecast_qty + record.mps_id.forecast_target_qty - record.starting_inventory_qty + record.indirect_demand_forecast
                 if replenish_needed > max_qty:
                     record.replenish_qty = max_qty
+                    record.old_replenish_qty = max_qty
                 elif replenish_needed < min_qty:
                     record.replenish_qty = min_qty
+                    record.old_replenish_qty = min_qty
                 else:
                     record.replenish_qty = replenish_needed
+                    record.old_replenish_qty = replenish_needed
             else:
-                record.replenish_qty = record.replenish_qty
+                record.replenish_qty = record.old_replenish_qty
+            print(f"{record.mps_id.display_name} : {record.replenish_qty}")
 
     @api.model
     def create(self, vals):
         res = super(ForecastedQty, self).create(vals)
-        res._compute_replenish_qty()
         return res
 
     @api.model
@@ -143,7 +146,7 @@ class ForecastedQty(models.Model):
     @api.model
     def set_replenish_qty(self, production_schedule_id, replenish_qty):
         production_schedule = self.browse(production_schedule_id)
-        if production_schedule:
+        if production_schedule.exists():
             if production_schedule.old_replenish_qty == replenish_qty:
                 production_schedule.write({'replenish_qty': replenish_qty, 'replenish_qty_updated': False})
             else:

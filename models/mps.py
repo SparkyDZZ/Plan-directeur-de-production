@@ -63,6 +63,7 @@ class MPS(models.Model):
             'product_id': product_id,
             'product_uom_id': product_uom_id,
         })
+        mps_record.create_forecasted_qty()
 
         if bom_id:
             bom = self.env['mrp.bom'].browse(bom_id)
@@ -77,8 +78,6 @@ class MPS(models.Model):
                     'has_indirect_demand' : 1,
                 }
                 self.env['mps'].create(mps_line_vals)
-        mps_record.create_forecasted_qty()
-
         return mps_record
 
     def save(self, vals):
