@@ -223,7 +223,6 @@ odoo.define('owl.mps', function (require) {
                     method: 'set_replenish_qty',
                     args: [RproductionScheduleId, replenishQty],
                 }).then(function() {
-                    console.log(RproductionScheduleId,  replenishQty)
                     self.load();
                 });
             });
