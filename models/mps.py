@@ -58,6 +58,15 @@ class MPS(models.Model):
             product_id = product_tmpl.product_variant_id.id
             product_uom_id = product_tmpl.uom_id.id
 
+        # Vérifier si le produit est déjà un produit fini dans un autre MPS avec une nomenclature
+        existing_mps = self.env['mps'].search([
+            ('product_id', '=', product_id),
+            ('bom_id', '!=', False)
+        ], limit=1)
+
+        if existing_mps:
+            return existing_mps
+
         mps_record = super(MPS, self).create({
             **vals,
             'product_id': product_id,
@@ -70,14 +79,23 @@ class MPS(models.Model):
             for line in bom.bom_line_ids:
                 mps_line_vals = {
                     'product_id': line.product_id.id,
-                    'product_tmpl_id' : line.product_id.product_tmpl_id.id,
+                    'product_tmpl_id': line.product_id.product_tmpl_id.id,
                     'product_uom_id': line.product_uom_id.id,
-                    'warehouse_id' : vals.get('warehouse_id'),
-                    'max_to_replenish_qty' : 1000,
-                    'min_to_replenish_qty' : 0,
-                    'has_indirect_demand' : 1,
+                    'warehouse_id': vals.get('warehouse_id'),
+                    'max_to_replenish_qty': 1000,
+                    'min_to_replenish_qty': 0,
+                    'has_indirect_demand': 1,
                 }
-                self.env['mps'].create(mps_line_vals)
+
+                # Vérifier si la ligne de nomenclature existe déjà en tant que produit fini dans un MPS
+                existing_mps_line = self.env['mps'].search([
+                    ('product_id', '=', line.product_id.id),
+                    ('bom_id', '=', False)
+                ], limit=1).exists()
+                print(existing_mps_line)
+
+                if not existing_mps_line:
+                    self.env['mps'].create(mps_line_vals)
         return mps_record
 
     def save(self, vals):

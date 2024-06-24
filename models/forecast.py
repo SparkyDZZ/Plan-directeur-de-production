@@ -11,7 +11,8 @@ class ForecastedQty(models.Model):
     date_start = fields.Date(string='Date debut')
     date_end = fields.Date(string='Date de fin')
     procurement_launched = fields.Boolean(string="Le réapprovisionnement a été lancé pour cette estimation", default=False)
-    replenish_qty = fields.Float(string="A réapprovisionner", compute="_compute_replenish_qty", default=0.0, store=True)
+    replenish_qty = fields.Float(string="A réapprovisionner", compute="_compute_replenish_qty", store=True)
+    actual_replenish_qty = fields.Float(string="Actual replenishment", compute="_compute_actual_replenish_qty", store=False)
     old_replenish_qty = fields.Float(string="Nouvelle qty de réapprovisionnement")
     replenish_qty_updated = fields.Boolean(string="Replenish_qty a été mise à jour manuellement", default=False)
     starting_inventory_qty = fields.Float(string="Starting Inventory Quantity", compute="_compute_starting_inventory_qty")
@@ -19,6 +20,12 @@ class ForecastedQty(models.Model):
     actual_demand_qty = fields.Float(string="Actual Demand Quantity", compute='_compute_actual_demand_qty')
     actual_demand_qty_y1 = fields.Float(string="Demande Année-1", compute='_compute_actual_demand_qty_y1')
     indirect_demand_forecast = fields.Float(string="Prévision de la demande indirecte", compute="_compute_indirect_demand")
+    replenish_status = fields.Selection([
+        ('green', 'Vert'),
+        ('gray', 'Gris'),
+        ('red', 'Rouge'),
+        ('orange', 'Orange')
+    ], string="Replenish Status", compute='_compute_replenish_status')
 
     mps_id = fields.Many2one('mps', string="Master Production Schedule", required=True, ondelete='cascade')
 
@@ -80,24 +87,28 @@ class ForecastedQty(models.Model):
                 parent_mps = self.env['mps'].search([
                     ('bom_id.bom_line_ids.product_id', '=', record.mps_id.product_id.id),
                     ('warehouse_id', '=', record.mps_id.warehouse_id.id)
-                ], limit=1)
+                ])
 
                 if parent_mps:
-                    bom_line = self.env['mrp.bom.line'].search([
-                        ('bom_id', '=', parent_mps.bom_id.id),
-                        ('product_id', '=', record.mps_id.product_id.id)
-                    ], limit=1)
+                    indirect_demand_total = 0
+                    for parent in parent_mps:
+                        bom_line = self.env['mrp.bom.line'].search([
+                            ('bom_id', '=', parent.bom_id.id),
+                            ('product_id', '=', record.mps_id.product_id.id)
+                        ], limit=1)
 
-                    if bom_line:
-                        record.indirect_demand_forecast = parent_mps.forecast_ids.filtered(lambda f: f.date_start == record.date_start).replenish_qty * bom_line.product_qty
-                    else:
-                        record.indirect_demand_forecast = 0
+                        if bom_line:
+                            indirect_demand_total += parent.forecast_ids.filtered(
+                                lambda f: f.date_start == record.date_start
+                            ).replenish_qty * bom_line.product_qty
+
+                    record.indirect_demand_forecast = indirect_demand_total
                 else:
                     record.indirect_demand_forecast = 0
             else:
                 record.indirect_demand_forecast = 0
 
-    @api.depends('forecast_qty', 'starting_inventory_qty', 'safety_stock_qty', 'indirect_demand_forecast','mps_id.max_to_replenish_qty', 'mps_id.forecast_target_qty', 'mps_id.min_to_replenish_qty','replenish_qty_updated')
+    @api.depends('forecast_qty', 'starting_inventory_qty', 'safety_stock_qty', 'indirect_demand_forecast', 'replenish_qty', 'mps_id.max_to_replenish_qty', 'mps_id.forecast_target_qty', 'mps_id.min_to_replenish_qty','replenish_qty_updated')
     def _compute_replenish_qty(self):
         for record in self:
             if not record.replenish_qty_updated:
@@ -116,7 +127,47 @@ class ForecastedQty(models.Model):
 
             else:
                 record.replenish_qty = record.old_replenish_qty
-            print(f"{record.mps_id.display_name} : {record.replenish_qty}")
+
+    @api.depends('date_start', 'date_end', 'mps_id.product_id')
+    def _compute_actual_replenish_qty(self):
+        for record in self:
+            if record.date_start and record.date_end and record.mps_id.product_id:
+                product = record.mps_id.product_id
+                if 'Acheter' in product.route_ids.mapped('name'):
+                    purchase_lines = self.env['purchase.order.line'].search([
+                        ('product_id', '=', product.id),
+                        ('date_planned', '>=', record.date_start),
+                        ('date_planned', '<=', record.date_end)
+                    ])
+                    record.actual_replenish_qty = sum(line.product_qty for line in purchase_lines)
+                    print(f"Acheter : {record.actual_replenish_qty}")
+                elif 'Produire' in product.route_ids.mapped('name'):
+                    manufacturing_orders = self.env['mrp.production'].search([
+                        ('product_id', '=', product.id),
+                        ('date_planned_start', '>=', record.date_start),
+                        ('date_planned_start', '<=', record.date_end)
+                    ])
+                    record.actual_replenish_qty = sum(order.product_qty for order in manufacturing_orders)
+                    print(f"Produire : {record.actual_replenish_qty}")
+                else:
+                    record.actual_replenish_qty = 0
+            else:
+                record.actual_replenish_qty = 0
+            for route in product.route_ids:
+                print(route.mapped('name'))
+
+    @api.depends('replenish_qty', 'old_replenish_qty', 'procurement_launched')
+    def _compute_replenish_status(self):
+        for record in self:
+            if not record.procurement_launched:
+                record.replenish_status = 'green'
+            else:
+                if record.replenish_qty == record.actual_replenish_qty:
+                    record.replenish_status = 'gray'
+                elif record.replenish_qty > record.actual_demand_qty:
+                    record.replenish_status = 'orange'
+                else:
+                    record.replenish_status = 'red'
 
     @api.model
     def create(self, vals):
@@ -160,3 +211,10 @@ class ForecastedQty(models.Model):
             production_schedule.write({'replenish_qty': production_schedule.old_replenish_qty, 'replenish_qty_updated': False})
             return True
         return False
+
+    @api.model
+    def apply_replenishment_to_all(self):
+        records = self.search([])
+        for record in records:
+            record._compute_replenish_qty()
+        return True
