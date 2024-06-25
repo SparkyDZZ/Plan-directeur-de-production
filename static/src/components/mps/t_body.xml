@@ -116,7 +116,7 @@
                  </th>
                  <t t-foreach="i.forecast_quantities" t-as="j" t-key="j">
                      <th class="text-right pe-4">
-                         <span class="" t-esc="widget.formatFloat(j.replenish_qty - j.actual_demand_qty + j.starting_inventory_qty)"/>
+                         <span class="" t-esc="widget.formatFloat(j.replenish_qty + j.starting_inventory_qty - j.actual_demand_qty)"/>
                          <span class=""> / </span>
                          <span t-attf-class="{{0 > j.safety_stock_qty and 'text-danger' or ''}}" t-esc="widget.formatFloat(j.safety_stock_qty)"/>
                      </th>
