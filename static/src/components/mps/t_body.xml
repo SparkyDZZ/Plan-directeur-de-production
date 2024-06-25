@@ -77,7 +77,7 @@
                      + <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The quantity being replenished, based on the Requests for Quotation and the Manufacturing Orders.">Actuelle</span>
                      <span class=""> / </span>
                      <span class="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="The quantity to replenish through Purchase Orders or Manufacturing Orders.">Réapprovisionnement suggéré</span>
-                     <button type="button" title="Replenish" t-attf-class="btn btn-link text-muted o_no_padding " t-on-click.stop="_onClickReplenish" t-on-mouseover.stop="_onMouseOverReplenish" t-on-mouseout.stop="_onMouseOutReplenish">
+                     <button type="button" title="Replenish" t-attf-class="btn btn-link text-muted o_no_padding o_mrp_mps_replenish" t-att-data-id="i.id" t-on-click.stop="_onClickReplenish" t-on-mouseover.stop="_onMouseOverReplenish" t-on-mouseout.stop="_onMouseOutReplenish">
                          Replenish
                      </button>
                  </th>

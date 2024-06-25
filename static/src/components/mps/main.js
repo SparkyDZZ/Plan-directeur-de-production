@@ -132,7 +132,23 @@ odoo.define('owl.mps', function (require) {
         },
 
         _onClickReplenish: function (ev) {
-            console.log('Replenish button clicked');
+            ev.stopPropagation();
+            var productionScheduleId = $(ev.target).closest('.o_mrp_mps_replenish').data('id');
+            this._onSetReplenish(productionScheduleId)
+        },
+
+        _onSetReplenish: function(productionScheduleId){
+            var self = this;
+            this.mutex.exec(function() {
+                return self._rpc({
+                    model: 'mps.forecasted.qty',
+                    method: 'set_launch_procurement',
+                    args: [productionScheduleId],
+                }).then(function() {
+                    self.load();
+                    console.log("REPLENISH")
+                });
+            });
         },
 
         _onMouseOverReplenish: function (ev) {

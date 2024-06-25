@@ -140,7 +140,6 @@ class ForecastedQty(models.Model):
                         ('date_planned', '<=', record.date_end)
                     ])
                     record.actual_replenish_qty = sum(line.product_qty for line in purchase_lines)
-                    print(f"Acheter : {record.actual_replenish_qty}")
                 elif 'Produire' in product.route_ids.mapped('name'):
                     manufacturing_orders = self.env['mrp.production'].search([
                         ('product_id', '=', product.id),
@@ -148,15 +147,12 @@ class ForecastedQty(models.Model):
                         ('date_planned_start', '<=', record.date_end)
                     ])
                     record.actual_replenish_qty = sum(order.product_qty for order in manufacturing_orders)
-                    print(f"Produire : {record.actual_replenish_qty}")
                 else:
                     record.actual_replenish_qty = 0
             else:
                 record.actual_replenish_qty = 0
-            for route in product.route_ids:
-                print(route.mapped('name'))
 
-    @api.depends('replenish_qty', 'old_replenish_qty', 'procurement_launched')
+    @api.depends('replenish_qty', 'actual_replenish_qty', 'procurement_launched')
     def _compute_replenish_status(self):
         for record in self:
             if not record.procurement_launched:
@@ -164,10 +160,38 @@ class ForecastedQty(models.Model):
             else:
                 if record.replenish_qty == record.actual_replenish_qty:
                     record.replenish_status = 'gray'
-                elif record.replenish_qty > record.actual_demand_qty:
+                elif record.replenish_qty > record.actual_replenish_qty:
                     record.replenish_status = 'orange'
                 else:
                     record.replenish_status = 'red'
+
+    @api.model
+    def set_launch_procurement(self, mps_id):
+        record = self.search([('procurement_launched', '=', False), ('mps_id', '=', mps_id)], order='date_end', limit=1)
+        if record:
+            product = record.mps_id.product_id
+            if 'Acheter' in product.route_ids.mapped('name'):
+                purchase_order = self.env['purchase.order'].create({
+                    'partner_id': product.seller_ids[0].name.id if product.seller_ids else False,
+                    'date_order': fields.Datetime.now(),
+                    'order_line': [(0, 0, {
+                        'product_id': product.id,
+                        'product_qty': record.replenish_qty,
+                        'price_unit': product.standard_price,
+                        'date_planned': record.date_end,
+                    })],
+                })
+            elif 'Produire' in product.route_ids.mapped('name'):
+                manufacturing_order = self.env['mrp.production'].create({
+                    'product_id': product.id,
+                    'product_qty': record.replenish_qty - record.actual_replenish_qty,
+                    'date_planned_start': record.date_start,
+                    'date_planned_finished': record.date_end,
+                    'product_uom_id': product.uom_id.id,
+                })
+            record.procurement_launched = True
+
+        return True
 
     @api.model
     def create(self, vals):
